@@ -7,6 +7,9 @@
 #include "proc.h"
 #include "vm.h"
 
+extern uint ticks;
+extern struct spinlock tickslock;
+
 uint64
 sys_exit(void)
 {
@@ -108,5 +111,17 @@ sys_uptime(void)
   acquire(&tickslock);
   xticks = ticks;
   release(&tickslock);
+  return xticks;
+}
+//The assignment implementation 
+uint64
+sys_getuptime(void)
+{
+  uint xticks;
+
+  acquire(&tickslock);
+  xticks = ticks;
+  release(&tickslock);
+
   return xticks;
 }
