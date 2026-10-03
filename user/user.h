@@ -25,7 +25,8 @@ char *sys_sbrk(int, int);
 int pause(int);
 int uptime(void);
 int sync(void);
-
+int getuptime(void);
+int lineage(int pid);
 // ulib.c
 int stat(const char *, struct stat *);
 char *strcpy(char *, const char *);

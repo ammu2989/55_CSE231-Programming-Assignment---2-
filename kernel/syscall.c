@@ -106,7 +106,8 @@ extern uint64 sys_activecount(void);
 extern uint64 sys_getprocsize(void);
 extern uint64 sys_familyheadcount(void);
 extern uint64 sys_sync(void);
-
+extern uint64 sys_getuptime(void);//Assignment 2 implementation 
+extern uint64 sys_lineage(void);
 // An array mapping syscall numbers from syscall.h
 // to the function that handles the system call.
 static uint64 (*syscalls[])(void) = {
@@ -136,7 +137,9 @@ static uint64 (*syscalls[])(void) = {
 [SYS_getprocsize]     sys_getprocsize,
 [SYS_familyheadcount] sys_familyheadcount,
   [SYS_sync]    = sys_sync,
-  // clang-format on
+  [SYS_getuptime] = sys_getuptime,//Assignment 2 implementation 
+  [SYS_lineage] = sys_lineage,
+// clang-format on
 };
 
 void
@@ -155,3 +158,4 @@ syscall(void)
     p->trapframe->a0 = -1;
   }
 }
+

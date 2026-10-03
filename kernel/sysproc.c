@@ -7,6 +7,11 @@
 #include "proc.h"
 #include "vm.h"
 
+
+extern struct proc proc[NPROC];
+extern uint ticks;
+extern struct spinlock tickslock;
+
 uint64
 sys_exit(void)
 {
@@ -168,5 +173,68 @@ sys_familyheadcount(void)
     }
   }
   release(&wait_lock);
+  return count;
+}
+
+//The assignment implementation 
+uint64
+sys_getuptime(void)
+{
+  uint xticks;
+
+  acquire(&tickslock);
+  xticks = ticks;
+  release(&tickslock);
+
+  return xticks;
+}
+uint64
+sys_lineage(void)
+{
+  int pid;
+  struct proc *p = 0;
+  char name[16];
+  int count = 0;
+
+  argint(0, &pid);
+
+  // 1. Find process with matching PID
+  for (int i = 0; i < NPROC; i++) {
+    acquire(&proc[i].lock);
+    if (proc[i].pid == pid && proc[i].state != UNUSED) {
+      p = &proc[i];
+      release(&proc[i].lock);
+      break;
+    }
+    release(&proc[i].lock);
+  }
+
+  if (p == 0)
+    return -1;
+
+  // 2. Traverse up the process tree
+  while (p != 0) {
+    acquire(&p->lock);
+    
+    if (p->state == UNUSED) {
+      release(&p->lock);
+      break;
+    }
+
+    safestrcpy(name, p->name, sizeof(name));
+    int curr_pid = p->pid;
+    struct proc *parent = p->parent;
+    release(&p->lock);
+
+    printk("PID %d: %s\n", curr_pid, name);
+    count++;
+
+    if (curr_pid == 1)
+      break;
+
+    p = parent;
+  }
+
+
   return count;
 }
