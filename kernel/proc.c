@@ -6,6 +6,8 @@
 #include "proc.h"
 #include "defs.h"
 
+extern struct proc proc[NPROC];
+
 struct cpu cpus[NCPU];
 
 struct proc proc[NPROC];
