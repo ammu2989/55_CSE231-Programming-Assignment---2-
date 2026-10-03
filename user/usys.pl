@@ -48,4 +48,4 @@ entry("lineage");
 entry("activecount");
 entry("getprocsize");
 entry("familyheadcount");
-
+entry("getprocinfo");

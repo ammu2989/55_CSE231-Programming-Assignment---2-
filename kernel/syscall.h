@@ -26,4 +26,5 @@
 #define SYS_activecount     25
 #define SYS_getprocsize     26
 #define SYS_familyheadcount 27
+#define SYS_getprocinfo 28
 

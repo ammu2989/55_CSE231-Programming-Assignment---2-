@@ -6,11 +6,13 @@
 #include "spinlock.h"
 #include "proc.h"
 #include "vm.h"
-
+#include "procinfo.h"
+#include "param.h"
 
 extern struct proc proc[NPROC];
 extern uint ticks;
 extern struct spinlock tickslock;
+extern struct proc proc[NPROC];
 
 uint64
 sys_exit(void)
@@ -129,7 +131,7 @@ sys_getuptime(void)
 
   return xticks;
 }
-//Q3 
+//Q3
 uint64
 sys_lineage(void)
 {
@@ -145,7 +147,6 @@ sys_lineage(void)
     acquire(&proc[i].lock);
     if (proc[i].pid == pid && proc[i].state != UNUSED) {
       p = &proc[i];
-      release(&proc[i].lock);
       break;
     }
     release(&proc[i].lock);
@@ -157,7 +158,7 @@ sys_lineage(void)
   // 2. Traverse up the process tree
   while (p != 0) {
     acquire(&p->lock);
-    
+
     if (p->state == UNUSED) {
       release(&p->lock);
       break;
@@ -176,6 +177,8 @@ sys_lineage(void)
 
     p = parent;
   }
+  return count;
+}
 
 
 extern struct proc proc[NPROC];
@@ -237,4 +240,68 @@ sys_familyheadcount(void)
   }
   release(&wait_lock);
   return count;
+}
+//Bonus Question 
+uint64
+sys_getprocinfo(void)
+{
+  int index;
+  uint64 user_address;
+  struct procinfo info;
+  struct proc *p;
+  struct proc *current;
+
+  /*
+   * argint() and argaddr() return void in this xv6 version.
+   * Do not compare their return values with < 0.
+   */
+  argint(0, &index);
+  argaddr(1, &user_address);
+
+  if(index < 0 || index >= NPROC)
+    return -1;
+
+  memset(&info, 0, sizeof(info));
+
+  p = &proc[index];
+
+  acquire(&p->lock);
+
+  /*
+   * Do not display UNUSED or ZOMBIE processes.
+   */
+  if(p->state != UNUSED && p->state != ZOMBIE) {
+    info.active = 1;
+    info.pid = p->pid;
+    info.sz = (int)p->sz;
+
+    if(p->parent != 0) {
+      /*
+       * Save the parent PID while the process is locked.
+       */
+      current = p->parent;
+      info.ppid = current->pid;
+    } else {
+      info.ppid = 0;
+    }
+
+    safestrcpy(info.name, p->name, sizeof(info.name));
+  }
+
+  release(&p->lock);
+
+  /*
+   * This xv6 version uses:
+   *
+   * copyout(pagetable, maximum_address, user_address,
+   *         kernel_source, number_of_bytes)
+   */
+  if(copyout(myproc()->pagetable,
+             myproc()->sz,
+             user_address,
+             (char *)&info,
+             sizeof(info)) < 0)
+    return -1;
+
+  return 0;
 }

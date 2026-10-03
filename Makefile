@@ -150,12 +150,11 @@ UPROGS=\
 	$U/_forphan\
 	$U/_dorphan\
 	$U/_sync\
-<<<<<<< HEAD
         $U/_uptimetest\
         $U/_lineagetest\
-=======
-	$U/_testb
->>>>>>> partB-q2-q4-q5
+	$U/_testb\
+        $U/_test\
+        $U/_pstree\
 
 fs.img: mkfs/mkfs README $(UPROGS)
 	mkfs/mkfs fs.img README $(UPROGS)

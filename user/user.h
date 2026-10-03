@@ -1,6 +1,8 @@
 #define SBRK_ERROR ((char *)-1)
+#include "kernel/procinfo.h"
 
 struct stat;
+struct procinfo;
 
 // system calls
 int fork(void);
@@ -52,3 +54,5 @@ void free(void *);
 int activecount(void);
 int getprocsize(int);
 int familyheadcount(int);
+
+int getprocinfo(int, struct procinfo *);
