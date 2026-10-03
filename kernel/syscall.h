@@ -27,3 +27,5 @@
 #define SYS_getuptime 23
 #define SYS_lineage 24
 
+
+#define SYS_getprocinfo 28

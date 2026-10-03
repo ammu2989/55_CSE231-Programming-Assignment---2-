@@ -5,6 +5,7 @@
 #include "memlayout.h"
 #include "spinlock.h"
 #include "proc.h"
+#include "procinfo.h"
 #include "vm.h"
 
 
@@ -237,4 +238,53 @@ sys_lineage(void)
 
 
   return count;
+}
+
+//Bonus Question
+uint64
+sys_getprocinfo(void)
+{
+  int index;
+  uint64 user_address;
+  struct procinfo info;
+  struct proc *p;
+  struct proc *current;
+
+  argint(0, &index);
+  argaddr(1, &user_address);
+
+  if(index < 0 || index >= NPROC)
+    return -1;
+
+  memset(&info, 0, sizeof(info));
+
+  p = &proc[index];
+
+  acquire(&p->lock);
+
+  if(p->state != UNUSED && p->state != ZOMBIE) {
+    info.active = 1;
+    info.pid = p->pid;
+    info.sz = (int)p->sz;
+
+    if(p->parent != 0) {
+      current = p->parent;
+      info.ppid = current->pid;
+    } else {
+      info.ppid = 0;
+    }
+
+    safestrcpy(info.name, p->name, sizeof(info.name));
+  }
+
+  release(&p->lock);
+
+  if(copyout(myproc()->pagetable,
+             myproc()->sz,
+             user_address,
+             (char *)&info,
+             sizeof(info)) < 0)
+    return -1;
+
+  return 0;
 }

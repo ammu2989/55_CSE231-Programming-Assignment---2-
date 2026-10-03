@@ -49,3 +49,4 @@ entry("familyheadcount");
 entry("getuptime");
 entry("lineage");
 
+entry("getprocinfo");

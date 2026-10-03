@@ -153,6 +153,7 @@ UPROGS=\
         $U/_uptimetest\
         $U/_lineagetest\
         $U/_test\
+	$U/_pstree\
 
 fs.img: mkfs/mkfs README $(UPROGS)
 	mkfs/mkfs fs.img README $(UPROGS)
