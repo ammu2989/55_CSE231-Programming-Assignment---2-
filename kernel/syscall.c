@@ -102,6 +102,9 @@ extern uint64 sys_unlink(void);
 extern uint64 sys_link(void);
 extern uint64 sys_mkdir(void);
 extern uint64 sys_close(void);
+extern uint64 sys_activecount(void);
+extern uint64 sys_getprocsize(void);
+extern uint64 sys_familyheadcount(void);
 extern uint64 sys_sync(void);
 extern uint64 sys_getuptime(void);//Assignment 2 implementation 
 extern uint64 sys_lineage(void);
@@ -130,6 +133,9 @@ static uint64 (*syscalls[])(void) = {
   [SYS_link]    = sys_link,
   [SYS_mkdir]   = sys_mkdir,
   [SYS_close]   = sys_close,
+[SYS_activecount]     sys_activecount,
+[SYS_getprocsize]     sys_getprocsize,
+[SYS_familyheadcount] sys_familyheadcount,
   [SYS_sync]    = sys_sync,
   [SYS_getuptime] = sys_getuptime,//Assignment 2 implementation 
   [SYS_lineage] = sys_lineage,

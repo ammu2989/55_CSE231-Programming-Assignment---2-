@@ -115,6 +115,67 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+extern struct proc proc[NPROC];
+extern struct spinlock wait_lock;
+
+// Q2: count processes whose state is not UNUSED
+uint64
+sys_activecount(void)
+{
+  struct proc *p;
+  int count = 0;
+
+  for(p = proc; p < &proc[NPROC]; p++){
+    acquire(&p->lock);
+    if(p->state != UNUSED)
+      count++;
+    release(&p->lock);
+  }
+  return count;
+}
+
+// Q4: size in bytes of process `pid`, or -1 if absent/UNUSED
+uint64
+sys_getprocsize(void)
+{
+  int pid;
+  struct proc *p;
+
+  argint(0, &pid);
+
+  for(p = proc; p < &proc[NPROC]; p++){
+    acquire(&p->lock);
+    if(p->pid == pid && p->state != UNUSED){
+      int sz = p->sz;          // read BEFORE releasing the lock
+      release(&p->lock);
+      return sz;
+    }
+    release(&p->lock);
+  }
+  return -1;
+}
+
+// Q5: caller's children that are neither UNUSED nor ZOMBIE
+uint64
+sys_familyheadcount(void)
+{
+  struct proc *me = myproc();
+  struct proc *p;
+  int count = 0;
+
+  acquire(&wait_lock);                // protects p->parent
+  for(p = proc; p < &proc[NPROC]; p++){
+    if(p->parent == me){
+      acquire(&p->lock);              // protects p->state
+      if(p->state != UNUSED && p->state != ZOMBIE)
+        count++;
+      release(&p->lock);
+    }
+  }
+  release(&wait_lock);
+  return count;
+}
+
 //The assignment implementation 
 uint64
 sys_getuptime(void)
@@ -173,6 +234,7 @@ sys_lineage(void)
 
     p = parent;
   }
+
 
   return count;
 }
