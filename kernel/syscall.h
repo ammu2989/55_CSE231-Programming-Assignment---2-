@@ -23,3 +23,7 @@
 #define SYS_sync   22
 #define SYS_getuptime 23
 #define SYS_lineage 24
+#define SYS_activecount     25
+#define SYS_getprocsize     26
+#define SYS_familyheadcount 27
+
